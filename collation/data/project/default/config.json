@@ -1,0 +1,8 @@
+{
+  "id": "chaucer",
+  "name": "Chaucer Example Collation Editor 2",
+  "managing_editor": "default",
+  "editors": ["default"],
+  "witnesses": ["Ch","Hg", "El", "Ad3", "Bo1", "Bo2"],
+  "base_text": "Hg"
+}
