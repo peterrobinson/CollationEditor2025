@@ -53,12 +53,47 @@ TCMongoDB_services = (function() {
 
 
 _load_witnesses = function (verse, witness_list, finished_callback, results, i) {
-			//new routine goes here
+			//Here we check our parallels entry...
+	let parallels=[];
+	let srchEntity=TCMongoDB_services._entity.replace(TCMongoDB_services._community+":",TCMongoDB_services._community+"/" );
+	try {
+    	eval(TCMongoDB_services.collationparallels);
+    }  catch (e) {
+		alert(e.message);
+	}
+	if ((typeof collparallels!="undefined") && collparallels.length>0) {  //cope with two kinds of parallel
+		if (collparallels[0][0].hasOwnProperty("entity")) {
+			for (let i=0; i<collparallels.length; i++) {
+				if (collparallels[i].filter(parallel=>parallel.entity==srchEntity).length) {
+					parallels=collparallels[i];
+					break;
+				}
+			}
+		} else {
+			for (let i=0; i<collparallels.length; i++) {
+				if (collparallels[i].filter(parallel=>parallel==srchEntity).length) {
+					let myArr=collparallels[i];
+					for (let j=0; j<myArr.length; j++) {
+						parallels.push({entity: myArr[j], suffix:""})
+					}
+					break;
+				}
+			}
+		}
+	} else {
+		parallels.push({entity:TCMongoDB_services._entity, suffix:""});
+	}
+	if (parallels.length==0) parallels.push({entity:TCMongoDB_services._entity, suffix:""});
+	
+//	if ()
+	for (let i=0; i<parallels.length;i++) {
+		parallels[i].entity=parallels[i].entity.replace(TCMongoDB_services._community+"/", TCMongoDB_services._community+":");
+	}
 	var url= TCMongoDB_services._dbUrl+'getCEWitnesses/?community='+TCMongoDB_services._community;
 	$.ajax({
 		type: 'POST',
 		url: url,
-		data: JSON.stringify({witnesses: witness_list, base: CL.dataSettings.base_text, entity:  TCMongoDB_services._entity, override: true}),
+		data: JSON.stringify({witnesses: witness_list, base: CL.dataSettings.base_text, parallels: parallels, entity:  TCMongoDB_services._entity, override: true}),
 		accepts: 'application/json',
 		contentType: 'application/json; charset=utf-8',
 		dataType: 'json'
@@ -117,13 +152,19 @@ _load_witnesses = function (verse, witness_list, finished_callback, results, i) 
 //   CL.displaySettingsDetails.configs.push({"id": "show_xml","label": "show xml","function": "show_xml", "menu_pos": 7,"execution_pos": 2,"check_by_default": false,"apply_when": true});
     _get_resource('ceconfig/?community=' + TCMongoDB_services._community, function (project) {
 		project=JSON.parse(project);
-		CL.dataSettings.witness_list=project.witnesses;
-		CL.dataSettings.base_text = project.base_text;
-		CL.context = TCMongoDB_services._entity;
-		TCMongoDB_services.collationents=project.collationents;
-		console.log("CL here in initialization") ;
-		let cbproject={"id": TCMongoDB_services._community, "name": TCMongoDB_services._community, "managing_editor": "default",  "editors": ["default"], "witnesses": CL.dataSettings.witness_list,  "base_text": CL.dataSettings.base_text};
-		success_callback(cbproject);
+		if (typeof project.witnesses[0]=='object') { //old style list of objects, not strings. Force back to 
+			alert("The witness list is in an outdated format. Go to Manage->Collation->Choose Witnesses to change and resave the witness list to the new format");
+			success_callback(null);
+		} else {
+			CL.dataSettings.witness_list=project.witnesses;
+			CL.dataSettings.base_text = project.base_text;
+			CL.context = TCMongoDB_services._entity;
+			TCMongoDB_services.collationents=project.collationents;
+			TCMongoDB_services.collationparallels=project.collationparallels;	
+			console.log("CL here in initialization") ;
+			let cbproject={"id": TCMongoDB_services._community, "name": TCMongoDB_services._community, "managing_editor": "default",  "editors": ["default"], "witnesses": CL.dataSettings.witness_list,  "base_text": CL.dataSettings.base_text};
+			success_callback(cbproject);
+		}
     });
 };
 
@@ -727,7 +768,7 @@ loadSavedCollation = function (id, result_callback) {
 	let searchEntity=TCMongoDB_services._entity.replace(TCMongoDB_services._community+":", "");
 	//from TCMongoDB_services.collationents
 	
-	if (TCMongoDB_services.collationents.length>0 && TCMongoDB_services.collationents.filter(entity=>entity==searchEntity).length>0) {
+	if ((typeof TCMongoDB_services.collationents!="undefined") && TCMongoDB_services.collationents.length>0 && TCMongoDB_services.collationents.filter(entity=>entity==searchEntity).length>0) {
 		const index = TCMongoDB_services.collationents.indexOf(searchEntity);
 		if (isPrevious && index>0) {
 			$("#previous_verse").on("click", function() {
