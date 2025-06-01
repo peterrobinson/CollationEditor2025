@@ -89,43 +89,52 @@ _load_witnesses = function (verse, witness_list, finished_callback, results, i) 
 	for (let i=0; i<parallels.length;i++) {
 		parallels[i].entity=parallels[i].entity.replace(TCMongoDB_services._community+"/", TCMongoDB_services._community+":");
 	}
-	var url= TCMongoDB_services._dbUrl+'getCEWitnesses/?community='+TCMongoDB_services._community;
-	$.ajax({
-		type: 'POST',
-		url: url,
-		data: JSON.stringify({witnesses: witness_list, base: CL.dataSettings.base_text, parallels: parallels, entity:  TCMongoDB_services._entity, override: true}),
-		accepts: 'application/json',
-		contentType: 'application/json; charset=utf-8',
-		dataType: 'json'
-	})
-	.done (function(data){
-		//check that we have base..
-		if (!data.success) {
-			alert("Error reading in the witnesses");
+//	var url= TCMongoDB_services._dbUrl+'getCEWitnesses/?community='+TCMongoDB_services._community;
+	var url= TCMongoDB_services._dbUrl+'fetchCEWitness/?community='+TCMongoDB_services._community;
+	console.log("about to load")
+	//here we are going to use async
+	var results=[];
+	var nWit=0;
+	async.mapSeries(witness_list, function(witness, callback){
+		$.ajax({
+			type: 'POST',
+			url: url,
+			data: JSON.stringify({witnesses: witness_list, base: CL.dataSettings.base_text, parallels: parallels, entity:  TCMongoDB_services._entity, override: true, nWit:nWit}),
+			accepts: 'application/json',
+			contentType: 'application/json; charset=utf-8',
+			dataType: 'json'
+		})
+		.done (function(data){
+			//check that we have base..
+			if (!data.success) {
+				alert("Error reading in the witnesses");
+				CL.dataSettings.witness_list=[]; //reset to null
+				finished_callback([]);
+			}
+			else  {  //note. In this embedded we are not checking if the base exists. We do that before the collation starts
+				//we might have a warning message: so send it
+				if (data.errorMessage!="") alert(data.errorMessage);
+				for (var i=0;i<data.result.length;i++) {
+					if (Object.keys(data.result[i]).length) {
+						let myResult=JSON.parse(data.result[i]);
+						_renameProperty(myResult, "transcription_id", "transcription");
+						results.push(myResult);
+	//					console.log("witness "+data.result[i])
+					}
+				}
+				nWit++;
+				$("#container").html("<p style='margin: 30px'>Loading witness "+witness+", "+nWit+" of "+witness_list.length+"</p>");
+				callback(null)
+			}
+		})
+		.fail (function(data){
+			alert("Error fetching witnesses");
 			CL.dataSettings.witness_list=[]; //reset to null
 			finished_callback([]);
-		}
-		else  {  //note. In this embedded we are not checking if the base exists. We do that before the collation starts
-			var results=[];
-			//we might have a warning message: so send it
-			if (data.errorMessage!="") alert(data.errorMessage);
-			for (var i=0;i<data.result.length;i++) {
-				if (Object.keys(data.result[i]).length) {
-					let myResult=JSON.parse(data.result[i]);
-					_renameProperty(myResult, "transcription_id", "transcription");
-					results.push(myResult);
-//					console.log("witness "+data.result[i])
-				}
-			}
-//			console.log("what we got "+results)
-			finished_callback(results);  //results will have everything
-		}
+		});
+	}, function (err) {
+		finished_callback(results);  //results will have everything
 	})
-	.fail (function(data){
-		alert("Error fetching witnesses");
-		CL.dataSettings.witness_list=[]; //reset to null
-		finished_callback([]);
-	});
 }
    
   getCurrentEditingProject = function (success_callback) {	
