@@ -17,7 +17,7 @@ TCMongoDB_services = (function() {
   };
   
  
-  initialiseEditor = function () {
+ /* initialiseEditor = function () {
     getCurrentEditingProject(CL.loadIndexPage);
     //in local services everyone is a managing editor as they are not collaborative projects
     CL.managingEditor = true;
@@ -25,13 +25,27 @@ TCMongoDB_services = (function() {
 		RG.getCollationData("editor", 0);
 	} 
   };
+  */
+  //version suggested by Cat
+  initialiseEditor = function () {
+    console.log("new initializaton")
+	CL.managingEditor = true;
+	let callback = function (project) {
+		CL.loadIndexPage(project);
+		if (TCMongoDB_services._mode=="reg") {
+					 RG.getCollationData("editor", 0);
+		 }
+	  }
+	 getCurrentEditingProject(callback);
+  };
+ 
    
    _get_resource = function (resource_type, result_callback) {
 		//we have to parse the resource_type string and figure out how to read this from the database
 		//urls to call: /ceconfig/?community gives config.json
 		// and: cewitness/?witness=Hg&community=CTP&entity=CTP:Group=GP:line=1
 		if (TCMongoDB_services._dbUrl==null) {
-			console.log("(TCMongoDB_services._dbUrl not initialized yet")
+//			console.log("(TCMongoDB_services._dbUrl not initialized yet")
 			var url = _data_repo + resource_type + '?defeat_cache='+new Date().getTime();
 			$.get(url, function(resource) {
 			  result_callback(resource, 200);
@@ -91,7 +105,7 @@ _load_witnesses = function (verse, witness_list, finished_callback, results, i) 
 	}
 //	var url= TCMongoDB_services._dbUrl+'getCEWitnesses/?community='+TCMongoDB_services._community;
 	var url= TCMongoDB_services._dbUrl+'fetchCEWitness/?community='+TCMongoDB_services._community;
-	console.log("about to load")
+//	console.log("about to load")
 	//here we are going to use async
 	var results=[];
 	var nWit=0;
@@ -147,7 +161,7 @@ _load_witnesses = function (verse, witness_list, finished_callback, results, i) 
 		TCMongoDB_services._dbUrl=ns.get('dbUrl');
 	}
    TCMongoDB_services.SITE_DOMAIN = 'https://textualcommunities.com:8443';  //reset when moving to server
-   console.log("server "+TCMongoDB_services._dbUrl)
+//   console.log("server "+TCMongoDB_services._dbUrl)
    TCMongoDB_services._entity=searchParams.get('entity');
    TCMongoDB_services._community=searchParams.get('community');
    TCMongoDB_services._project={_id:TCMongoDB_services._community};
@@ -170,7 +184,7 @@ _load_witnesses = function (verse, witness_list, finished_callback, results, i) 
 			CL.context = TCMongoDB_services._entity;
 			TCMongoDB_services.collationents=project.collationents;
 			TCMongoDB_services.collationparallels=project.collationparallels;	
-			console.log("CL here in initialization") ;
+//			console.log("CL here in initialization") ;
 			let cbproject={"id": TCMongoDB_services._community, "name": TCMongoDB_services._community, "managing_editor": "default",  "editors": ["default"], "witnesses": CL.dataSettings.witness_list,  "base_text": CL.dataSettings.base_text};
 			success_callback(cbproject);
 		}
@@ -350,7 +364,7 @@ getRuleExceptions = function (entity, result_callback) {   //pull in all global 
   _get_rules = function (entity, result_callback) {
 		//go get all the rules from the database.  Check them here for exceptions
 		var url = TCMongoDB_services._dbUrl + 'getRegularizationRules/?entity='+entity+'&community='+TCMongoDB_services._community+'&defeat_cache='+new Date().getTime();
-		console.log("inside get rules "+url);
+//		console.log("inside get rules "+url);
 		var rules=[];
 		$.get(url, function(resource) {
 			//need to insert check for exceptions here
@@ -379,7 +393,7 @@ getRuleExceptions = function (entity, result_callback) {   //pull in all global 
  
   doCollation = function(verse, options, result_callback) {
     var url; 
-    console.log("collating")
+//    console.log("collating")
     if (typeof options === "undefined") {
       options = {};
     }
@@ -416,7 +430,7 @@ getRuleExceptions = function (entity, result_callback) {   //pull in all global 
 
 saveCollation = function (entity, collation, confirm_message, overwrite_allowed, no_overwrite_message, result_callback) {
 	//does it exist already?
-	console.log("in SaveCollation");
+//	console.log("in SaveCollation");
 	var adjusted=false, savecollation=collation;
 	//we add here: if this is approved collation we adjust to filter out -mod and -orig fake entries
 		if (collation.status=="approved") {
@@ -612,7 +626,7 @@ deleteAllRules = function (callback) { //delete everything set for this block
 
 _save_collation_apparatus = function(entity, result_callback, myCollation) {
 	//tc adds this: when we approved the apparatus we write it to the collation db
-	console.log("in Save_collation_apparatus ");
+//	console.log("in Save_collation_apparatus ");
 	 var url =  staticUrl + 'apparatus';
 	 let approved = JSON.parse(myCollation.ce);
 	 let settings = JSON.parse(CL.getExporterSettings());
