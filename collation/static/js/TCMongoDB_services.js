@@ -388,7 +388,8 @@ getRuleExceptions = function (entity, result_callback) {   //pull in all global 
  	getRules = function (verse, result_callback, rules, resource_types, path_type, i) {
 	//much simplified; We just go get all the rules from the datatase
 //		console.log("getting the rules")
-		return result_callback(_get_rules(verse, result_callback));
+//		return result_callback(_get_rules(verse, result_callback)); fixed by Cat
+		return _get_rules(verse, result_callback);
 	}
  
   doCollation = function(verse, options, result_callback) {
