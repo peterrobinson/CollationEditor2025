@@ -338,7 +338,7 @@ RG = (function() {
   showVerseCollation = function(data, context, container, options) {
     var html, i, temp, eventRows, row, header, unitEvents, globalExceptionsHtml, showHideRegularisationsButtonText,
         removeWitsForm, wits, footerHtml, preselectedAddedHighlight;
-    console.log(JSON.parse(JSON.stringify(data)));
+//    console.log(JSON.parse(JSON.stringify(data)));
     CL.stage = 'regularise';
 
     if (typeof options === 'undefined') {
@@ -858,7 +858,7 @@ RG = (function() {
     } else {
       resultCallback = function(data) {
         if (data === null) {
-        	console.log("why this result??")  //not sure why we get this sometimes...
+        	console.log("Error in calling _doRunCollation in regularise.js")  //not sure why we get this sometimes...
 //          alert(CL.context + ' does not collate.');
           spinner.removeLoadingOverlay();
 //          location.reload();
