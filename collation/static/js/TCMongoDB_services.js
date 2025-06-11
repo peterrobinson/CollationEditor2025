@@ -833,14 +833,16 @@ loadSavedCollation = function (id, result_callback) {
 
 witnessSort = function(orig) {
 	let dest=[];
-	console.log("in witness sort");
+//	console.log("in witness sort");
 	orig.sort();  //put in alpha order first
 	//put base first..
 	dest.push(CL.dataSettings.base_text);
 	for (let i=0; i<orig.length; i++) {
 		if (orig[i]!=CL.dataSettings.base_text) dest.push(orig[i]);
 	}
-	return dest;
+	for (let i=0; i<orig.length; i++) {
+		orig[i]=dest[i];
+	}
 }
 
 extraFooterButtons = {
