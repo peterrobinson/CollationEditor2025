@@ -865,6 +865,7 @@ RG = (function() {
           return;
         }
         CL.data = data;
+        console.log("loaded collation");
         CL.data = _integrateLacOmReadings(CL.data);
         CL.dataSettings.base_text_siglum = data.overtext_name;
         showVerseCollation(CL.data, CL.context, document.getElementById('container'));

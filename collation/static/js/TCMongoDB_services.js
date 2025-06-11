@@ -33,7 +33,7 @@ TCMongoDB_services = (function() {
 	let callback = function (project) {
 		CL.loadIndexPage(project);
 		if (TCMongoDB_services._mode=="reg") {
-					 RG.getCollationData("editor", 0);
+			 RG.getCollationData("editor", 0);
 		 }
 	  }
 	 getCurrentEditingProject(callback);
@@ -137,7 +137,7 @@ _load_witnesses = function (verse, witness_list, finished_callback, results, i) 
 					}
 				}
 				nWit++;
-				$("#container").html("<p style='margin: 30px'>Loading witness "+witness+", "+nWit+" of "+witness_list.length+"</p>");
+				if (witness_list.length>5) $("#container").html("<p style='margin: 30px'>Loading witness "+witness+", "+nWit+" of "+witness_list.length+"</p>");
 				callback(null)
 			}
 		})
@@ -831,6 +831,17 @@ loadSavedCollation = function (id, result_callback) {
 	}
 }
 
+witnessSort = function(orig) {
+	let dest=[];
+	console.log("in witness sort");
+	orig.sort();  //put in alpha order first
+	//put base first..
+	dest.push(CL.dataSettings.base_text);
+	for (let i=0; i<orig.length; i++) {
+		if (orig[i]!=CL.dataSettings.base_text) dest.push(orig[i]);
+	}
+	return dest;
+}
 
 extraFooterButtons = {
   "regularised": [
@@ -915,7 +926,8 @@ return {
     applySettings: applySettings,
     allowWitnessChangesInSavedCollations: allowWitnessChangesInSavedCollations,
     extraFooterButtons: extraFooterButtons,
-    addExtraFooterFunctions: addExtraFooterFunctions
+    addExtraFooterFunctions: addExtraFooterFunctions,
+    witnessSort: witnessSort
   };
 
 } () );

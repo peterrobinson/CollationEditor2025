@@ -1632,7 +1632,7 @@ CL = (function() {
       runFunction(CL.project.witnessSort, [witnesses]);
     } else if (CL.services && CL.services.hasOwnProperty('witnessSort')) {
       //or use the default for the services if there is one
-      runFunction(CL.services.witnessSort, [witnesses]);
+      witnesses = runFunction(CL.services.witnessSort, [witnesses]);
     } else {
       //or just use regular sort
       witnesses.sort();
