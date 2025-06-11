@@ -836,12 +836,14 @@ witnessSort = function(orig) {
 //	console.log("in witness sort");
 	orig.sort();  //put in alpha order first
 	//put base first..
-	dest.push(CL.dataSettings.base_text);
-	for (let i=0; i<orig.length; i++) {
-		if (orig[i]!=CL.dataSettings.base_text) dest.push(orig[i]);
-	}
-	for (let i=0; i<orig.length; i++) {
-		orig[i]=dest[i];
+	if (orig.filter(text=>text==CL.dataSettings.base_text).length) {
+		dest.push(CL.dataSettings.base_text);
+		for (let i=0; i<orig.length; i++) {
+			if (orig[i]!=CL.dataSettings.base_text) dest.push(orig[i]);
+		}
+		for (let i=0; i<orig.length; i++) {
+			orig[i]=dest[i];
+		}
 	}
 }
 
